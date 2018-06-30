@@ -56,8 +56,9 @@ classdef QBSupervisor < simiam.controller.Supervisor
                                
             obj.prev_ticks = struct('left', 0, 'right', 0);
             
-            obj.theta_d     = pi/4;
-            obj.v           = 0.1;
+            % Change start parameters
+            obj.theta_d     = pi/3; % rad
+            obj.v           = 0.15;  % m/s
             
             obj.p = []; %simiam.util.Plotter();
             obj.current_controller.p = obj.p;
@@ -81,8 +82,9 @@ classdef QBSupervisor < simiam.controller.Supervisor
                         
             obj.update_odometry();
 
-%             [x, y, theta] = obj.state_estimate.unpack();
-%             fprintf('current_pose: (%0.3f,%0.3f,%0.3f)\n', x, y, theta);
+            [x, y, theta] = obj.state_estimate.unpack();
+            fprintf('current_pose: (%0.3f,%0.3f,%0.3f)\n', x, y, theta);
+            
         end
         
         %% Events %%
@@ -172,9 +174,16 @@ classdef QBSupervisor < simiam.controller.Supervisor
             
             %% START CODE BLOCK %%
             
-            x_dt = 0;
-            y_dt = 0;
-            theta_dt = 0;
+            r_delta_ticks = (right_ticks - prev_right_ticks);
+            l_delta_ticks = (left_ticks - prev_left_ticks);
+            
+            D_r = m_per_tick * r_delta_ticks;
+            D_l = m_per_tick * l_delta_ticks;
+            D_c= (D_r + D_l)/2;
+            
+            x_dt = D_c* cos(theta);
+            y_dt = D_c * sin(theta);
+            theta_dt = (D_r-D_l)/L;
             
             %% END CODE BLOCK %%
             

@@ -188,18 +188,34 @@ classdef QuickBot < simiam.robot.Robot
             obj.left_wheel_speed = 0;
         end
         
+        % A conversion from the raw IR values to distances
         function ir_distances = get_ir_distances(obj)
+            
             % FIX conversion between IR raw and distances, SEE WEEK 2
             ir_array_values = obj.ir_array.get_range();
             
             %% START CODE BLOCK %%
+            % Reference: V_ADC = V_analog * 500;
+            ir_voltages = ir_array_values./500;
             
-            ir_voltages = ir_array_values;
-            coeff = [0 0 0 0 0];
+            % Find the values in Figure 2b
+%             ir_voltages = [2.750, 2.35, 2.05, 1.75, 1.55,  ...
+%                            1.4, 1.275,1.075, 0.925, 0.805, ...
+%                            0.725, 0.65, 0.5, 0.4];
+%                                 
+%             ir_distances = [0.04, 0.05, 0.06, 0.07, 0.08, ...
+%                             0.09, 0.10, 0.12, 0.14, 0.16, ...
+%                             0.18, 0.20, 0.25, 0.30];
+%                         
+%             coeff = polyfit(ir_voltages, ir_distances, 5);
+            
+            coeff = [-0.0182 0.1690 -0.6264 1.1853 -1.2104 0.6293];
             
             %% END CODE BLOCK %%
             
+            % Convert from IR voltages to distances using a fifth-order polynomial
             ir_distances = polyval(coeff, ir_voltages);
+            
         end
         
         
